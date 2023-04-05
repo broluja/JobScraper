@@ -5,6 +5,17 @@ import requests
 class JobScraper:
     infostud = "https://poslovi.infostud.com/oglasi-za-posao-python-developer?scope=srpoz&esource=homepage"
     hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer"
+    linkedIn = "https://www.linkedin.com/jobs/search/?currentJobId=3541578873&geoId=101855366&keywords=python%20developer&location=Serbia&refresh=true"
+
+    def scrape_linkedin(self):
+        html_text = requests.get(self.linkedIn).text
+        soup = BeautifulSoup(html_text, "lxml")
+        divs = soup.find_all("div", class_="filter-values-container__filter-value")
+        # ul = soup.find_all("a")
+        # for link in ul:
+        #     print(link.parent.parent)
+        for div in divs:
+            print(div.text)
 
     def scrape_infostud(self):
         html_text = requests.get(self.infostud).text
@@ -36,3 +47,7 @@ class JobScraper:
                 if "." in paragraph.text:
                     date = paragraph.text
             yield company, description, date, link
+
+
+if __name__ == "__main__":
+    JobScraper().scrape_linkedin()

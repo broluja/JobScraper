@@ -73,6 +73,7 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
+        self.wm_iconbitmap(r"C:\Users\Branko\PycharmProjects\JobScraper\spider.ico")
 
     def yield_jobs(self):
         site = self.radio_var.get()
