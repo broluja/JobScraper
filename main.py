@@ -15,11 +15,12 @@ class JobScraperApp(ctk.CTk):
         self.configure_window()
         self.hello_world_adds = None
         self.infostud_adds = None
+        self.linked_in_adds = None
 
         # Create sidebar frame with widgets
         self.side_frame = ctk.CTkFrame(self, width=WIDTH // 10, corner_radius=0, border_width=1)
         self.side_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.side_frame.grid_rowconfigure(5, weight=1)
+        self.side_frame.grid_rowconfigure(7, weight=1)
 
         self.radio_var = tkinter.IntVar(value=0)
         self.label_radio_group = APPLabel(master=self.side_frame, text="Select Job Adds Site", size=18)
@@ -28,18 +29,20 @@ class JobScraperApp(ctk.CTk):
         self.radio_button_1.grid(row=2, column=0, pady=8, padx=20, sticky="n")
         self.radio_button_2 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=1, text="Infostud")
         self.radio_button_2.grid(row=3, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_3 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=2, text="LinkedIn")
+        self.radio_button_3.grid(row=4, column=0, pady=8, padx=20, sticky="n")
 
         self.btn_one = ctk.CTkButton(self.side_frame, text="Scrape Site", command=self.yield_jobs)
-        self.btn_one.grid(row=4, column=0, padx=25, pady=(10, 10), sticky="nsew")
+        self.btn_one.grid(row=5, column=0, padx=25, pady=(10, 10), sticky="nsew")
 
         self.appearance_mode_label = ctk.CTkLabel(self.side_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=6, column=0, padx=20, pady=(20, 10))
+        self.appearance_mode_label.grid(row=8, column=0, padx=20, pady=(20, 10))
         self.appearance_menu = ctk.CTkOptionMenu(self.side_frame, values=THEMES, command=self.change_appearance)
-        self.appearance_menu.grid(row=7, column=0, padx=20, pady=(10, 30))
+        self.appearance_menu.grid(row=9, column=0, padx=20, pady=(10, 30))
         self.scaling_label = ctk.CTkLabel(self.side_frame, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=8, column=0, padx=20, pady=10)
+        self.scaling_label.grid(row=10, column=0, padx=20, pady=10)
         self.scaling_menu = ctk.CTkOptionMenu(self.side_frame, values=SCALES, command=self.change_scaling_event)
-        self.scaling_menu.grid(row=9, column=0, padx=20, pady=(10, 30))
+        self.scaling_menu.grid(row=11, column=0, padx=20, pady=(10, 30))
 
         # Create Tabview
         self.tabview = ctk.CTkTabview(self, height=HEIGHT)
@@ -93,6 +96,15 @@ class JobScraperApp(ctk.CTk):
                 try:
                     title, company, link = next(self.infostud_adds)
                     self.job_frame.add_item(title, company, date=None, link=link)
+                except StopIteration:
+                    self.job_frame.add_item("End of queue.")
+                    self.infostud_adds = None
+            case 2:
+                if self.linked_in_adds is None:
+                    self.linked_in_adds = self.scraper.scrape_linkedin()
+                try:
+                    company_name, description, link = next(self.linked_in_adds)
+                    self.job_frame.add_item(description, company_name, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.infostud_adds = None
