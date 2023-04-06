@@ -72,6 +72,7 @@ class JobScraperApp(ctk.CTk):
         """Configure window size, name and grid layout (4×4)"""
         self.title("Scrape Jobs APP")
         self.geometry(f"{WIDTH}x{HEIGHT}+600+200")
+        ctk.set_appearance_mode("Dark")
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
@@ -107,7 +108,7 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(description, company_name, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.infostud_adds = None
+                    self.linked_in_adds = None
 
 
 if __name__ == "__main__":

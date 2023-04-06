@@ -3,13 +3,15 @@ import requests
 
 
 class JobScraper:
+    """Class for scraping sites."""
+
     infostud = "https://poslovi.infostud.com/oglasi-za-posao-python-developer?scope=srpoz&esource=homepage"
     hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer"
-    linkedIn = """https://www.linkedin.com/jobs/search/?currentJobId=3557468116&f_TPR=r604800&geoId=101855366&keywords=
-    python%20developer&location=Serbia&refresh=true"""
+    linked_in = """https://www.linkedin.com/jobs/search/?currentJobId=3557468116&f_TPR=r604800&geoId=101855366&
+    keywords=python%20developer&location=Serbia&refresh=true"""
 
     def scrape_linkedin(self):
-        html_text = requests.get(self.linkedIn).text
+        html_text = requests.get(self.linked_in).text
         soup = BeautifulSoup(html_text, "lxml")
         kls = "base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card "
         kls += "base-search-card--link job-search-card"
