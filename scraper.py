@@ -9,6 +9,35 @@ class JobScraper:
     hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer"
     linked_in = """https://www.linkedin.com/jobs/search/?currentJobId=3557468116&f_TPR=r604800&geoId=101855366&
     keywords=python%20developer&location=Serbia&refresh=true"""
+    teamcubate = "https://careers.teamcubate.com"
+    jooble = "https://rs.jooble.org/SearchResult?p=3&rgns=Srbija&ukw=python"
+
+    def scrape_jooble(self):
+        html_text = requests.get(self.jooble).text
+        soup = BeautifulSoup(html_text, "lxml")
+        main = soup.find("main", class_="yYtoPY")
+        articles = main.find_all("article")
+        for article in articles:
+            try:
+                description = article.header.a.text
+                link = article.header.a['href']
+                date = article.find("div", class_="caption e0VAhp").text
+                company = article.find("div", class_="_1JrOtp _30OfJk").text
+                yield company, description, link, date
+            except AttributeError:
+                continue
+
+    def scrape_teamcubate(self):
+        html_text = requests.get(self.teamcubate).text
+        soup = BeautifulSoup(html_text, "lxml")
+        job_adds = soup.find_all("li", class_="w-full")
+        for job_add in job_adds:
+            try:
+                link = job_add.a.get('href')
+                description = job_add.a.span.text
+                yield description, link
+            except AttributeError:
+                continue
 
     def scrape_linkedin(self):
         html_text = requests.get(self.linked_in).text
@@ -59,4 +88,4 @@ class JobScraper:
 
 
 if __name__ == "__main__":
-    JobScraper().scrape_linkedin()
+    JobScraper().scrape_jooble()

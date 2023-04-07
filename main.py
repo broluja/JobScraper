@@ -16,11 +16,13 @@ class JobScraperApp(ctk.CTk):
         self.hello_world_adds = None
         self.infostud_adds = None
         self.linked_in_adds = None
+        self.teamcubate_adds = None
+        self.jooble = None
 
         # Create sidebar frame with widgets
         self.side_frame = ctk.CTkFrame(self, width=WIDTH // 10, corner_radius=0, border_width=1)
         self.side_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.side_frame.grid_rowconfigure(7, weight=1)
+        self.side_frame.grid_rowconfigure(9, weight=1)
 
         self.radio_var = tkinter.IntVar(value=0)
         self.label_radio_group = APPLabel(master=self.side_frame, text="Select Job Adds Site", size=18)
@@ -31,18 +33,22 @@ class JobScraperApp(ctk.CTk):
         self.radio_button_2.grid(row=3, column=0, pady=8, padx=20, sticky="n")
         self.radio_button_3 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=2, text="LinkedIn")
         self.radio_button_3.grid(row=4, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_4 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=3, text="Teamcubate")
+        self.radio_button_4.grid(row=5, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_5 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=4, text="Jooble")
+        self.radio_button_5.grid(row=6, column=0, pady=8, padx=20, sticky="n")
 
         self.btn_one = ctk.CTkButton(self.side_frame, text="Scrape Site", command=self.yield_jobs)
-        self.btn_one.grid(row=5, column=0, padx=25, pady=(10, 10), sticky="nsew")
+        self.btn_one.grid(row=7, column=0, padx=35, pady=(10, 10), sticky="nsew")
 
         self.appearance_mode_label = ctk.CTkLabel(self.side_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=8, column=0, padx=20, pady=(20, 10))
+        self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(20, 10))
         self.appearance_menu = ctk.CTkOptionMenu(self.side_frame, values=THEMES, command=self.change_appearance)
-        self.appearance_menu.grid(row=9, column=0, padx=20, pady=(10, 30))
+        self.appearance_menu.grid(row=11, column=0, padx=20, pady=(10, 30))
         self.scaling_label = ctk.CTkLabel(self.side_frame, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=10, column=0, padx=20, pady=10)
+        self.scaling_label.grid(row=12, column=0, padx=20, pady=10)
         self.scaling_menu = ctk.CTkOptionMenu(self.side_frame, values=SCALES, command=self.change_scaling_event)
-        self.scaling_menu.grid(row=11, column=0, padx=20, pady=(10, 30))
+        self.scaling_menu.grid(row=13, column=0, padx=20, pady=(10, 30))
 
         # Create Tabview
         self.tabview = ctk.CTkTabview(self, height=HEIGHT)
@@ -77,7 +83,7 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.wm_iconbitmap(r"C:\Users\Branko\PycharmProjects\JobScraper\spider.ico")
+        # self.wm_iconbitmap(r"C:\Users\Branko\PycharmProjects\JobScraper\spider.ico")
 
     def yield_jobs(self):
         site = self.radio_var.get()
@@ -109,6 +115,24 @@ class JobScraperApp(ctk.CTk):
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.linked_in_adds = None
+            case 3:
+                if self.teamcubate_adds is None:
+                    self.teamcubate_adds = self.scraper.scrape_teamcubate()
+                try:
+                    description, link = next(self.teamcubate_adds)
+                    self.job_frame.add_item(desc=description, link=link)
+                except StopIteration:
+                    self.job_frame.add_item("End of queue.")
+                    self.teamcubate_adds = None
+            case 4:
+                if self.jooble is None:
+                    self.jooble = self.scraper.scrape_jooble()
+                try:
+                    company, description, link, date = next(self.jooble)
+                    self.job_frame.add_item(description, company, date, link, date_form="Published on")
+                except StopIteration:
+                    self.job_frame.add_item("End of queue.")
+                    self.jooble = None
 
 
 if __name__ == "__main__":

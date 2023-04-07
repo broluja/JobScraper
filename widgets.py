@@ -18,11 +18,11 @@ class JobsFrame(ctk.CTkScrollableFrame):
         self.command_two = command_2
         self.label_list = []
 
-    def add_item(self, desc=None, company=None, date=None, link=None) -> None:
+    def add_item(self, desc=None, company=None, date=None, link=None, date_form="Valid till") -> None:
         self.remove_items()
         text1 = f"Job description: {desc}" if desc != "End of queue." else desc
         text2 = f"Company: {company}" if company else ""
-        text3 = f"Valid till: {date}" if date else ""
+        text3 = f"{date_form}: {date}" if date else ""
         text4 = "Click for more info" if link else ""
         description = ctk.CTkLabel(self, text=text1, compound="left", padx=5, anchor="w")
         company = ctk.CTkLabel(self, text=text2, compound="left", padx=5, anchor="w")
