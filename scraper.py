@@ -1,5 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
+from datetime import datetime
+
+from utils import slugify
 
 
 class JobScraper:
@@ -11,6 +14,56 @@ class JobScraper:
     keywords=python%20developer&location=Serbia&refresh=true"""
     teamcubate = "https://careers.teamcubate.com"
     jooble = "https://rs.jooble.org/SearchResult?p=3&rgns=Srbija&ukw=python"
+    joberty = "https://www.joberty.rs/IT-poslovi?page=1&search=python"
+
+    def scrape_joberty(self):
+        headers = {
+            'Accept': 'application/json',
+            'Accept-Language': 'sr-RS,sr;q=0.9,en-US;q=0.8,en;q=0.7,de;q=0.6,hr;q=0.5,it;q=0.4,mk;q=0.3',
+            'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1NTI3NSIsImlhdCI6MTY4MTk5MDA4MCwiZXhwIjoxNjgyODU0MDgwfQ.CdIbh4h0jS1GmLafDUk__dn47FHKi3gmMRYYIYhBOzFqjliXD1Ul8bGq9DZ5Clu-SbdXIQPi6loBOWdqUMx-tA',
+            'Connection': 'keep-alive',
+            'Origin': 'https://www.joberty.rs',
+            'Referer': 'https://www.joberty.rs/',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-site',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
+            'sec-ch-ua': '^\\^Chromium^\\^;v=^\\^112^\\^, ^\\^Google',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '^\\^Windows^\\^',
+        }
+
+        params = (
+            ('page', '0'),
+            ('pageSize', '10'),
+            ('search', 'python'),
+            ('sort', 'created'),
+        )
+
+        response = requests.get('https://backend-test.joberty.rs/api/v1/jobs', headers=headers, params=params).json()
+        total_page = response["totalPage"]
+
+        for i in range(total_page):
+            params = (
+                ('page', i),
+                ('pageSize', '10'),
+                ('search', 'python'),
+                ('sort', 'created'),
+            )
+            response = requests.get('https://backend-test.joberty.rs/api/v1/jobs', headers=headers, params=params)
+
+            items = response.json()["items"]
+            for item in items:
+                try:
+                    company = item["companyName"]
+                    expiration_date = item["expirationDate"]
+                    expiration_date = datetime.fromtimestamp(expiration_date//1000).strftime("%A, %B %d, %Y %I:%M:%S")
+                    job_title = item["jobTitle"]
+                    path = "/".join([slugify(company.lower()), slugify(job_title), str(item["id"])])
+                    link = "https://www.joberty.rs/posao/" + path
+                    yield company, job_title, expiration_date, link
+                except AttributeError:
+                    continue
 
     def scrape_jooble(self):
         html_text = requests.get(self.jooble).text
@@ -88,4 +141,4 @@ class JobScraper:
 
 
 if __name__ == "__main__":
-    JobScraper().scrape_jooble()
+    JobScraper().scrape_joberty()

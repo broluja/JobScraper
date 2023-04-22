@@ -17,11 +17,13 @@ class JobsFrame(ctk.CTkScrollableFrame):
         self.command_one = command_1
         self.command_two = command_2
         self.label_list = []
+        self.button = None
+        self.checker = None
 
-    def add_item(self, desc=None, company=None, date=None, link=None, date_form="Valid till") -> None:
+    def add_item(self, desc=None, comp=None, date=None, link=None, date_form="Valid till") -> None:
         self.remove_items()
         text1 = f"Job description: {desc}" if desc != "End of queue." else desc
-        text2 = f"Company: {company}" if company else ""
+        text2 = f"Company: {comp}" if comp else ""
         text3 = f"{date_form}: {date}" if date else ""
         text4 = "Click for more info" if link else ""
         description = ctk.CTkLabel(self, text=text1, compound="left", padx=5, anchor="w")
@@ -37,11 +39,29 @@ class JobsFrame(ctk.CTkScrollableFrame):
             more_info.bind("<Enter>", lambda e: more_info.configure(text_color="blue"))
             more_info.bind("<Leave>", lambda e: more_info.configure(text_color="white"))
         self.label_list.extend([description, company, deadline, more_info])
+        if text1 != "End of queue.":
+            self.button = ctk.CTkButton(
+                self,
+                text="Mark as applied",
+                command=lambda x=comp, y=desc, z=link: self.command_one(x, y, z),
+                width=100)
+            self.button.grid(row=5, column=1, padx=10, pady=20)
 
     def remove_items(self) -> None:
         for label in self.label_list:
             label.destroy()
         self.label_list.clear()
+        if self.button:
+            self.button.destroy()
+            self.button = None
+
+    def switch(self):
+        self.button.destroy()
+        self.button = None
+        self.checker = ctk.CTkCheckBox(self, text="Applied for this one")
+        self.checker.grid(row=5, column=1)
+        self.checker.select()
+        self.checker.configure(state="disabled")
 
     @staticmethod
     def open_browser(link: str):

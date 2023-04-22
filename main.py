@@ -4,6 +4,7 @@ import customtkinter as ctk
 from scraper import JobScraper
 from config import *
 from widgets import APPLabel, JobsFrame
+from filer import Filer
 
 
 class JobScraperApp(ctk.CTk):
@@ -12,6 +13,7 @@ class JobScraperApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self._scraper = JobScraper()
+        self._filer = Filer()
         self.configure_window()
         self.hello_world_adds = None
         self.infostud_adds = None
@@ -58,12 +60,21 @@ class JobScraperApp(ctk.CTk):
         self.tabview.tab("Job Adds").grid_columnconfigure(0, weight=1)
         self.tabview.tab("My Applications").grid_columnconfigure(0, weight=1)
 
-        self.job_frame = JobsFrame(master=self.tabview.tab("Job Adds"), width=WIDTH, height=HEIGHT)
+        self.job_frame = JobsFrame(
+            master=self.tabview.tab("Job Adds"),
+            width=WIDTH,
+            height=HEIGHT,
+            command_1=self.save_add
+        )
         self.job_frame.grid(row=1, column=0, pady=(10, 0))
 
     @property
     def scraper(self):
         return self._scraper
+
+    @property
+    def filer(self):
+        return self._filer
 
     @staticmethod
     def change_scaling_event(new_scaling: str) -> None:
@@ -83,7 +94,7 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        # self.wm_iconbitmap(r"C:\Users\Branko\PycharmProjects\JobScraper\spider.ico")
+        self.wm_iconbitmap(r"C:\Users\Branko\PycharmProjects\JobScraper\spider.ico")
 
     def yield_jobs(self):
         site = self.radio_var.get()
@@ -133,6 +144,11 @@ class JobScraperApp(ctk.CTk):
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.jooble = None
+
+    def save_add(self, *args):
+        print(args)
+        # print(company, description, link)
+        self.job_frame.switch()
 
 
 if __name__ == "__main__":
