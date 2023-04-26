@@ -66,6 +66,7 @@ class JobScraperApp(ctk.CTk):
         self.tabview.tab("Job Adds").grid_columnconfigure(0, weight=1)
         self.tabview.tab("My Applications").grid_columnconfigure(0, weight=1)
 
+        # Jobs Frame
         self.job_frame = JobsFrame(
             master=self.tabview.tab("Job Adds"),
             width=WIDTH,

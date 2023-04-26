@@ -5,8 +5,20 @@ import customtkinter as ctk
 
 class APPLabel(ctk.CTkLabel):
     """Custom APP label with custom font size and weight."""
-    def __init__(self, size: int = 25, **kwargs):
+    def __init__(self, size: int = 20, **kwargs):
         super().__init__(**kwargs, font=ctk.CTkFont(size=size, weight="bold"))
+
+
+class LinkLabel(ctk.CTkLabel):
+    """Custom APP Label representing a link."""
+    def __init__(self, link: str, command=None, size: int = 18, **kwargs):
+        super().__init__(**kwargs, font=ctk.CTkFont(size=size, weight="bold"))
+        self.link = link
+        self.command = command
+        if self.link:
+            self.bind("<Button-1>", lambda e=self.link: self.command(link))
+            self.bind("<Enter>", lambda e: self.configure(text_color="blue"))
+            self.bind("<Leave>", lambda e: self.configure(text_color="white"))
 
 
 class JobsFrame(ctk.CTkScrollableFrame):
@@ -26,18 +38,14 @@ class JobsFrame(ctk.CTkScrollableFrame):
         text2 = f"Company: {comp}" if comp else ""
         text3 = f"{date_form}: {date}" if date else ""
         text4 = "Click for more info" if link else ""
-        description = ctk.CTkLabel(self, text=text1, compound="left", padx=5, anchor="w")
-        company = ctk.CTkLabel(self, text=text2, compound="left", padx=5, anchor="w")
+        description = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w")
+        company = APPLabel(master=self, text=text2, compound="left", padx=5, anchor="w")
         deadline = ctk.CTkLabel(self, text=text3, compound="left", padx=5, anchor="w")
-        more_info = APPLabel(master=self, text=text4, size=18, padx=5, anchor="w")
+        more_info = LinkLabel(master=self, command=lambda e: self.open_browser(e), link=link, text=text4, padx=5, anchor="w")
         description.grid(row=0, column=1, pady=(10, 5), sticky="w")
         company.grid(row=1, column=1, pady=(0, 5), sticky="w")
         deadline.grid(row=2, column=1, pady=(0, 5), sticky="w")
         more_info.grid(row=3, column=1, pady=(0, 10), sticky="w")
-        if link:
-            more_info.bind("<Button-1>", lambda e: self.open_browser(link))
-            more_info.bind("<Enter>", lambda e: more_info.configure(text_color="blue"))
-            more_info.bind("<Leave>", lambda e: more_info.configure(text_color="white"))
         self.label_list.extend([description, company, deadline, more_info])
         if text1 != "End of queue.":
             self.button = ctk.CTkButton(
