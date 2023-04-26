@@ -1,11 +1,12 @@
 import webbrowser
+from tktooltip import ToolTip
 
 import customtkinter as ctk
 
 
 class APPLabel(ctk.CTkLabel):
     """Custom APP label with custom font size and weight."""
-    def __init__(self, size: int = 20, **kwargs):
+    def __init__(self, size: int = 18, **kwargs):
         super().__init__(**kwargs, font=ctk.CTkFont(size=size, weight="bold"))
 
 
@@ -46,6 +47,7 @@ class JobsFrame(ctk.CTkScrollableFrame):
         company.grid(row=1, column=1, pady=(0, 5), sticky="w")
         deadline.grid(row=2, column=1, pady=(0, 5), sticky="w")
         more_info.grid(row=3, column=1, pady=(0, 10), sticky="w")
+        ToolTip(more_info, msg=link, delay=0.4, fg="#ffffff", bg="#1c1c1c", padx=8, pady=3, width=1000)
         self.label_list.extend([description, company, deadline, more_info])
         if text1 != "End of queue.":
             self.button = ctk.CTkButton(
