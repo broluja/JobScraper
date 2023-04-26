@@ -61,7 +61,7 @@ class JobScraper:
                     job_title = item["jobTitle"]
                     path = "/".join([slugify(company.lower()), slugify(job_title), str(item["id"])])
                     link = "https://www.joberty.rs/posao/" + path
-                    yield company, job_title, expiration_date, link
+                    yield company, job_title, link, expiration_date
                 except AttributeError:
                     continue
 
@@ -141,4 +141,6 @@ class JobScraper:
 
 
 if __name__ == "__main__":
-    JobScraper().scrape_joberty()
+    jobs = JobScraper().scrape_joberty()
+    while jobs:
+        print(next(jobs))

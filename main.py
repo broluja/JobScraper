@@ -20,6 +20,7 @@ class JobScraperApp(ctk.CTk):
         self.linked_in_adds = None
         self.teamcubate_adds = None
         self.jooble = None
+        self.joberty = None
 
         # Create sidebar frame with widgets
         self.side_frame = ctk.CTkFrame(self, width=WIDTH // 10, corner_radius=0, border_width=1)
@@ -39,9 +40,11 @@ class JobScraperApp(ctk.CTk):
         self.radio_button_4.grid(row=5, column=0, pady=8, padx=20, sticky="n")
         self.radio_button_5 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=4, text="Jooble")
         self.radio_button_5.grid(row=6, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_6 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=5, text="Joberty")
+        self.radio_button_6.grid(row=7, column=0, pady=8, padx=20, sticky="n")
 
         self.btn_one = ctk.CTkButton(self.side_frame, text="Scrape Site", command=self.yield_jobs)
-        self.btn_one.grid(row=7, column=0, padx=35, pady=(10, 10), sticky="nsew")
+        self.btn_one.grid(row=8, column=0, padx=35, pady=(10, 10), sticky="nsew")
 
         self.appearance_mode_label = ctk.CTkLabel(self.side_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(20, 10))
@@ -141,6 +144,15 @@ class JobScraperApp(ctk.CTk):
                 try:
                     company, description, link, date = next(self.jooble)
                     self.job_frame.add_item(description, company, date, link, date_form="Published on")
+                except StopIteration:
+                    self.job_frame.add_item("End of queue.")
+                    self.jooble = None
+            case 5:
+                if self.joberty is None:
+                    self.joberty = self.scraper.scrape_joberty()
+                try:
+                    company, description, link, date = next(self.joberty)
+                    self.job_frame.add_item(description, company, date, link, date_form="Expires on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.jooble = None

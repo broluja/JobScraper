@@ -54,6 +54,9 @@ class JobsFrame(ctk.CTkScrollableFrame):
         if self.button:
             self.button.destroy()
             self.button = None
+        if self.checker:
+            self.checker.destroy()
+            self.checker = None
 
     def switch(self):
         self.button.destroy()
