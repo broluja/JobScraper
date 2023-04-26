@@ -75,6 +75,18 @@ class JobScraperApp(ctk.CTk):
         )
         self.job_frame.grid(row=1, column=0, pady=(10, 0))
 
+        # Applications Frame
+        self.applications_frame = JobsFrame(
+            master=self.tabview.tab("My Applications"),
+            width=WIDTH,
+            height=HEIGHT,
+            command_1=None
+        )
+        self.applications_frame.grid(row=1, column=0, pady=(10, 0))
+        for index, ad in enumerate(self.applied_adds.values(), start=1):
+            count = index
+            self.applications_frame.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + count)
+
     @property
     def scraper(self):
         return self._scraper

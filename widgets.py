@@ -20,6 +20,7 @@ class LinkLabel(ctk.CTkLabel):
             self.bind("<Button-1>", lambda e=self.link: self.command(link))
             self.bind("<Enter>", lambda e: self.configure(text_color="blue"))
             self.bind("<Leave>", lambda e: self.configure(text_color="white"))
+        ToolTip(self, msg=self.link, delay=0.3, fg="#ffffff", bg="#1c1c1c", padx=8, pady=3, width=1000)
 
 
 class JobsFrame(ctk.CTkScrollableFrame):
@@ -32,6 +33,7 @@ class JobsFrame(ctk.CTkScrollableFrame):
         self.label_list = []
         self.button = None
         self.checker = None
+        self.applied_ads_labels = []
 
     def add_item(self, desc=None, comp=None, date=None, link=None, date_form="Valid till") -> None:
         self.remove_items()
@@ -42,12 +44,11 @@ class JobsFrame(ctk.CTkScrollableFrame):
         description = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w")
         company = APPLabel(master=self, text=text2, compound="left", padx=5, anchor="w")
         deadline = ctk.CTkLabel(self, text=text3, compound="left", padx=5, anchor="w")
-        more_info = LinkLabel(master=self, command=lambda e: self.open_browser(e), link=link, text=text4, padx=5, anchor="w")
+        more_info = LinkLabel(master=self, command=lambda e: self.open_browser(e), link=link, text=text4, padx=5)
         description.grid(row=0, column=1, pady=(10, 5), sticky="w")
         company.grid(row=1, column=1, pady=(0, 5), sticky="w")
         deadline.grid(row=2, column=1, pady=(0, 5), sticky="w")
         more_info.grid(row=3, column=1, pady=(0, 10), sticky="w")
-        ToolTip(more_info, msg=link, delay=0.4, fg="#ffffff", bg="#1c1c1c", padx=8, pady=3, width=1000)
         self.label_list.extend([description, company, deadline, more_info])
         if text1 != "End of queue.":
             self.button = ctk.CTkButton(
@@ -56,6 +57,15 @@ class JobsFrame(ctk.CTkScrollableFrame):
                 command=lambda x=comp, y=desc, z=link: self.command_one(x, y, z),
                 width=100)
             self.button.grid(row=5, column=1, padx=10, pady=20)
+
+    def add_applied_ads(self, company: str, position: str, date, link: str, index):
+        self.remove_items()
+        text1 = f"{company} - {position} - Date applied: {date}"
+        text2 = f"Click here to open ad link."
+        ad_label = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w", size=17)
+        link_label = LinkLabel(master=self, command=lambda e: self.open_browser(e), link=link, text=text2, padx=5, size=14)
+        ad_label.grid(row=index-1, column=1, sticky="w")
+        link_label.grid(row=index, column=1, pady=(0, 25), sticky="w")
 
     def remove_items(self) -> None:
         for label in self.label_list:
