@@ -4,58 +4,56 @@ from uuid import uuid4
 from datetime import date
 
 from exceptions import *
+from config import FILE
 
 
 class Filer:
     """CLass for filing applied job adds. It uses files and json for storing objects."""
-    filename = "applied-adds.txt"
+    filename = FILE
 
     def __init__(self):
         if self.filename not in os.listdir(os.getcwd()):
-            self.init_file(self.filename)
+            self.init_file()
         else:
             print("File initialized.")
 
-    @staticmethod
-    def init_file(file: str) -> None:
+    def init_file(self) -> None:
         """
         Initialize file for storing records.
-        :param file: Str, file name
-        :return: None.
+
+        Return: None.
         """
         records = {}
-        with open(file, "w") as writer:
+        with open(self.filename, "w") as writer:
             writer.write(json.dumps(records, indent=4))
 
-    @classmethod
-    def read(cls, filename: str) -> dict:
+    def read(self) -> dict:
         """
         Read the file and create dict object using json.
-        :param filename: Name of the file, str.
-        :return: dict.
+
+        Return: dict.
         """
         try:
-            with open(filename) as reader:
+            with open(self.filename) as reader:
                 records = json.loads(reader.read())
             return records
         except FileNotFoundError:
-            raise InitializeFileError(f"We cannot find file: {cls.filename}. Make sure you initialized files.")
+            raise InitializeFileError(f"We cannot find file: {self.filename}. Make sure you initialized files.")
 
-    @classmethod
-    def write(cls, records: dict, filename: str) -> None:
+    def write(self, records: dict) -> None:
         """
         Write to file, converting dict object to string using json.
-        :param records: dict object, representing data from the file.
-        :param filename: Name of the file, str.
-        :return: None.
+        Param records: dict object, representing data from the file.
+
+        Return: None.
         """
         try:
-            with open(filename, "w") as writer:
+            with open(self.filename, "w") as writer:
                 writer.write(json.dumps(records, indent=4))
         except FileNotFoundError:
-            raise InitializeFileError(f"We cannot find file: {cls.filename}. Make sure you initialized files.")
+            raise InitializeFileError(f"We cannot find file: {self.filename}. Make sure you initialized files.")
 
-    def save_add(self, company, description, link, date_applied=date.today().isoformat()):
+    def save_ad(self, company, description, link, date_applied=date.today().isoformat()):
         """
         Storing add to the database.
 
@@ -64,7 +62,7 @@ class Filer:
         param link: Link to the add.
         param date_applied: Date when user applied.
         """
-        records = self.read(self.filename)
+        records = self.read()
         new_add_id = str(uuid4())
         records[new_add_id] = {
             "company": company,
@@ -72,5 +70,5 @@ class Filer:
             "link": link,
             "date_applied": date_applied
         }
-        self.write(records, self.filename)
+        self.write(records)
 

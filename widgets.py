@@ -59,13 +59,13 @@ class JobsFrame(ctk.CTkScrollableFrame):
             self.button.grid(row=5, column=1, padx=10, pady=20)
 
     def add_applied_ads(self, company: str, position: str, date, link: str, index):
-        self.remove_items()
         text1 = f"{company} - {position} - Date applied: {date}"
         text2 = f"Click here to open ad link."
         ad_label = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w", size=17)
         link_label = LinkLabel(master=self, command=lambda e: self.open_browser(e), link=link, text=text2, padx=5, size=14)
         ad_label.grid(row=index-1, column=1, sticky="w")
         link_label.grid(row=index, column=1, pady=(0, 25), sticky="w")
+        self.applied_ads_labels.extend([ad_label, link_label])
 
     def remove_items(self) -> None:
         for label in self.label_list:
@@ -77,6 +77,17 @@ class JobsFrame(ctk.CTkScrollableFrame):
         if self.checker:
             self.checker.destroy()
             self.checker = None
+
+    def remove_applied_ads_labels(self):
+        for label in self.applied_ads_labels:
+            label.destroy()
+        self.applied_ads_labels.clear()
+
+    def populate_applied_ads_labels(self, iterable):
+        self.remove_applied_ads_labels()
+        for index, ad in enumerate(iterable, start=1):
+            count = index
+            self.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + count)
 
     def switch(self):
         self.button.destroy()

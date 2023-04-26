@@ -21,7 +21,7 @@ class JobScraperApp(ctk.CTk):
         self.teamcubate_adds = None
         self.jooble = None
         self.joberty = None
-        self.applied_adds = self.filer.read("applied-adds.txt")
+        self.applied_adds = self.filer.read()
 
         # Create sidebar frame with widgets
         self.side_frame = ctk.CTkFrame(self, width=WIDTH // 10, corner_radius=0, border_width=1)
@@ -71,7 +71,7 @@ class JobScraperApp(ctk.CTk):
             master=self.tabview.tab("Job Adds"),
             width=WIDTH,
             height=HEIGHT,
-            command_1=self.save_add
+            command_1=self.save_applied_ad
         )
         self.job_frame.grid(row=1, column=0, pady=(10, 0))
 
@@ -83,9 +83,7 @@ class JobScraperApp(ctk.CTk):
             command_1=None
         )
         self.applications_frame.grid(row=1, column=0, pady=(10, 0))
-        for index, ad in enumerate(self.applied_adds.values(), start=1):
-            count = index
-            self.applications_frame.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + count)
+        self.applications_frame.populate_applied_ads_labels(self.applied_adds.values())
 
     @property
     def scraper(self):
@@ -113,9 +111,11 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.wm_iconbitmap(r"C:\Users\Branko\PycharmProjects\JobScraper\spider.ico")
+        self.wm_iconbitmap("spider.ico")
 
     def yield_jobs(self):
+        if self.tabview.tab != "Job Adds":
+            self.tabview.set("Job Adds")
         site = self.radio_var.get()
         match site:
             case 0:
@@ -128,7 +128,6 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(description, company, date, link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.hello_world_adds = None
             case 1:
                 if self.infostud_adds is None:
@@ -140,7 +139,6 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(title, company, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.infostud_adds = None
             case 2:
                 if self.linked_in_adds is None:
@@ -152,7 +150,6 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(description, company_name, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.linked_in_adds = None
             case 3:
                 if self.teamcubate_adds is None:
@@ -164,7 +161,6 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(desc=description, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.teamcubate_adds = None
             case 4:
                 if self.jooble is None:
@@ -176,7 +172,6 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(description, company, date, link, date_form="Published on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.jooble = None
             case 5:
                 if self.joberty is None:
@@ -188,7 +183,6 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item(description, company, date, link, date_form="Expires on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.joberty = None
 
     def is_already_applied(self, company: str | None, description: str | None, link: str | None):
@@ -198,12 +192,12 @@ class JobScraperApp(ctk.CTk):
                 return True
         return False
 
-    def save_add(self, *args):
-        company = args[0]
-        description = args[1]
-        link = args[2]
-        self.filer.save_add(company, description, link)
+    def save_applied_ad(self, *args):
+        company, description, link = args
+        self.filer.save_ad(company, description, link)
         self.job_frame.switch()
+        self.applied_adds = self.filer.read()
+        self.applications_frame.populate_applied_ads_labels(self.applied_adds.values())
 
 
 if __name__ == "__main__":
