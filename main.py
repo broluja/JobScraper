@@ -21,6 +21,7 @@ class JobScraperApp(ctk.CTk):
         self.teamcubate_adds = None
         self.jooble = None
         self.joberty = None
+        self.applied_adds = self.filer.read("applied-adds.txt")
 
         # Create sidebar frame with widgets
         self.side_frame = ctk.CTkFrame(self, width=WIDTH // 10, corner_radius=0, border_width=1)
@@ -47,13 +48,15 @@ class JobScraperApp(ctk.CTk):
         self.btn_one.grid(row=8, column=0, padx=35, pady=(10, 10), sticky="nsew")
 
         self.appearance_mode_label = ctk.CTkLabel(self.side_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(20, 10))
+        self.appearance_mode_label.grid(row=10, column=0, padx=20, pady=(10, 5))
         self.appearance_menu = ctk.CTkOptionMenu(self.side_frame, values=THEMES, command=self.change_appearance)
-        self.appearance_menu.grid(row=11, column=0, padx=20, pady=(10, 30))
+        self.appearance_menu.grid(row=11, column=0, padx=20, pady=5)
         self.scaling_label = ctk.CTkLabel(self.side_frame, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=12, column=0, padx=20, pady=10)
+        self.scaling_label.grid(row=12, column=0, padx=20, pady=5)
         self.scaling_menu = ctk.CTkOptionMenu(self.side_frame, values=SCALES, command=self.change_scaling_event)
-        self.scaling_menu.grid(row=13, column=0, padx=20, pady=(10, 30))
+        self.scaling_menu.grid(row=13, column=0, padx=20, pady=(5, 10))
+        self.version_label = ctk.CTkLabel(self.side_frame, text="Software version 0.1.0", anchor="w")
+        self.version_label.grid(row=14, column=0, padx=20, pady=5)
 
         # Create Tabview
         self.tabview = ctk.CTkTabview(self, height=HEIGHT)
@@ -107,59 +110,86 @@ class JobScraperApp(ctk.CTk):
                     self.hello_world_adds = self.scraper.scrape_hello_world()
                 try:
                     company, description, date, link = next(self.hello_world_adds)
+                    while self.is_already_applied(company=company, description=description, link=link):
+                        company, description, date, link = next(self.hello_world_adds)
                     self.job_frame.add_item(description, company, date, link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
+                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.hello_world_adds = None
             case 1:
                 if self.infostud_adds is None:
                     self.infostud_adds = self.scraper.scrape_infostud()
                 try:
                     title, company, link = next(self.infostud_adds)
+                    while self.is_already_applied(company=company, description=title, link=link):
+                        title, company, link = next(self.infostud_adds)
                     self.job_frame.add_item(title, company, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
+                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.infostud_adds = None
             case 2:
                 if self.linked_in_adds is None:
                     self.linked_in_adds = self.scraper.scrape_linkedin()
                 try:
                     company_name, description, link = next(self.linked_in_adds)
+                    while self.is_already_applied(company=company_name, description=description, link=link):
+                        company_name, description, link = next(self.linked_in_adds)
                     self.job_frame.add_item(description, company_name, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
+                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.linked_in_adds = None
             case 3:
                 if self.teamcubate_adds is None:
                     self.teamcubate_adds = self.scraper.scrape_teamcubate()
                 try:
                     description, link = next(self.teamcubate_adds)
+                    while self.is_already_applied(company=None, description=description, link=link):
+                        description, link = next(self.teamcubate_adds)
                     self.job_frame.add_item(desc=description, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
+                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.teamcubate_adds = None
             case 4:
                 if self.jooble is None:
                     self.jooble = self.scraper.scrape_jooble()
                 try:
                     company, description, link, date = next(self.jooble)
+                    while self.is_already_applied(company=company, description=description, link=link):
+                        company, description, link, date = next(self.jooble)
                     self.job_frame.add_item(description, company, date, link, date_form="Published on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
+                    self.applied_adds = self.filer.read("applied-adds.txt")
                     self.jooble = None
             case 5:
                 if self.joberty is None:
                     self.joberty = self.scraper.scrape_joberty()
                 try:
                     company, description, link, date = next(self.joberty)
+                    while self.is_already_applied(company=company, description=description, link=link):
+                        company, description, link, date = next(self.joberty)
                     self.job_frame.add_item(description, company, date, link, date_form="Expires on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
-                    self.jooble = None
+                    self.applied_adds = self.filer.read("applied-adds.txt")
+                    self.joberty = None
+
+    def is_already_applied(self, company: str | None, description: str | None, link: str | None):
+        applied_adds = list(self.applied_adds.values())
+        for add in applied_adds:
+            if add["company"] == company and add["job_description"] == description and add["link"] == link:
+                return True
+        return False
 
     def save_add(self, *args):
-        print(args)
-        # print(company, description, link)
+        company = args[0]
+        description = args[1]
+        link = args[2]
+        self.filer.save_add(company, description, link)
         self.job_frame.switch()
 
 

@@ -14,7 +14,7 @@ class JobScraper:
     keywords=python%20developer&location=Serbia&refresh=true"""
     teamcubate = "https://careers.teamcubate.com"
     jooble = "https://rs.jooble.org/SearchResult?p=3&rgns=Srbija&ukw=python"
-    joberty = "https://www.joberty.rs/IT-poslovi?page=1&search=python"
+    joberty = "https://backend-test.joberty.rs/api/v1/jobs"
 
     def scrape_joberty(self):
         headers = {
@@ -40,7 +40,7 @@ class JobScraper:
             ('sort', 'created'),
         )
 
-        response = requests.get('https://backend-test.joberty.rs/api/v1/jobs', headers=headers, params=params).json()
+        response = requests.get(self.joberty, headers=headers, params=params).json()
         total_page = response["totalPage"]
 
         for i in range(total_page):
@@ -57,7 +57,7 @@ class JobScraper:
                 try:
                     company = item["companyName"]
                     expiration_date = item["expirationDate"]
-                    expiration_date = datetime.fromtimestamp(expiration_date//1000).strftime("%A, %B %d, %Y %I:%M:%S")
+                    expiration_date = datetime.fromtimestamp(expiration_date // 1000).strftime("%A, %B %d, %Y %I:%M:%S")
                     job_title = item["jobTitle"]
                     path = "/".join([slugify(company.lower()), slugify(job_title), str(item["id"])])
                     link = "https://www.joberty.rs/posao/" + path
