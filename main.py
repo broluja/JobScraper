@@ -29,7 +29,7 @@ class JobScraperApp(ctk.CTk):
         self.side_frame.grid_rowconfigure(9, weight=1)
 
         self.radio_var = tkinter.IntVar(value=0)
-        self.label_radio_group = APPLabel(master=self.side_frame, text="Select Job Adds Site", size=18)
+        self.label_radio_group = APPLabel(master=self.side_frame, text="Select Job Ads Site", size=18)
         self.label_radio_group.grid(row=1, column=0, padx=10, pady=(20, 10))
         self.radio_button_1 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=0, text="Hello World")
         self.radio_button_1.grid(row=2, column=0, pady=8, padx=20, sticky="n")

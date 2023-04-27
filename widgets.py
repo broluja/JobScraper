@@ -18,9 +18,9 @@ class LinkLabel(ctk.CTkLabel):
         self.command = command
         if self.link:
             self.bind("<Button-1>", lambda e=self.link: self.command(link))
-            self.bind("<Enter>", lambda e: self.configure(text_color="blue"))
-            self.bind("<Leave>", lambda e: self.configure(text_color="white"))
-        ToolTip(self, msg=self.link, delay=0.3, fg="#ffffff", bg="#1c1c1c", padx=8, pady=3, width=1000)
+            self.bind("<Enter>", lambda e: self.configure(text_color="#1f538d"))
+            self.bind("<Leave>", lambda e: self.configure(text_color="gray"))
+        ToolTip(self, msg=self.link, delay=0.2, fg="#ffffff", bg="#1c1c1c", padx=8, pady=3, width=1000)
 
 
 class JobsFrame(ctk.CTkScrollableFrame):
@@ -61,8 +61,14 @@ class JobsFrame(ctk.CTkScrollableFrame):
     def add_applied_ads(self, company: str, position: str, date, link: str, index):
         text1 = f"{company} - {position} - Date applied: {date}"
         text2 = f"Click here to open ad link."
-        ad_label = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w", size=17)
-        link_label = LinkLabel(master=self, command=lambda e: self.open_browser(e), link=link, text=text2, padx=5, size=14)
+        ad_label = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w", size=17, text_color="#1f538d")
+        link_label = LinkLabel(master=self,
+                               command=lambda e: self.open_browser(e),
+                               link=link,
+                               text=text2,
+                               padx=5,
+                               size=14,
+                               text_color="gray")
         ad_label.grid(row=index-1, column=1, sticky="w")
         link_label.grid(row=index, column=1, pady=(0, 25), sticky="w")
         self.applied_ads_labels.extend([ad_label, link_label])
