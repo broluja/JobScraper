@@ -12,7 +12,7 @@ class Filer:
     filename = FILE
 
     def __init__(self):
-        if self.filename not in os.listdir(os.getcwd()):
+        if self.filename.split("/")[-1] not in os.listdir('files'):
             self.init_file()
         else:
             print("File initialized.")

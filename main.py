@@ -70,7 +70,7 @@ class JobScraperApp(ctk.CTk):
         self.job_frame = JobsFrame(
             master=self.tabview.tab("Job Adds"),
             width=WIDTH,
-            height=HEIGHT,
+            height=HEIGHT*0.8,
             command_1=self.save_applied_ad
         )
         self.job_frame.grid(row=1, column=0, pady=(10, 0))
@@ -79,7 +79,7 @@ class JobScraperApp(ctk.CTk):
         self.applications_frame = JobsFrame(
             master=self.tabview.tab("My Applications"),
             width=WIDTH,
-            height=HEIGHT,
+            height=HEIGHT*0.8,
             command_1=None
         )
         self.applications_frame.grid(row=1, column=0, pady=(10, 0))

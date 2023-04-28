@@ -1,8 +1,9 @@
 # JobScraper
+
 Scrape python developer positions from couple of job ad sites.
 
 
-Techologies used on this project:
-python 3.10
-BeautifulSoup
-customtkinter
+Technologies used on this project:
+### Python 3.10
+### BeautifulSoup
+### customtkinter
