@@ -60,7 +60,7 @@ class JobScraper:
                     expiration_date = datetime.fromtimestamp(expiration_date // 1000).strftime("%A, %B %d, %Y %I:%M:%S")
                     job_title = item["jobTitle"]
                     path = "/".join([slugify(company.lower()), slugify(job_title), str(item["id"])])
-                    link = "https://www.joberty.rs/posao/" + path
+                    link = f"https://www.joberty.rs/posao/{path}"
                     yield company, job_title, link, expiration_date
                 except AttributeError:
                     continue
@@ -95,8 +95,10 @@ class JobScraper:
     def scrape_linkedin(self):
         html_text = requests.get(self.linked_in).text
         soup = BeautifulSoup(html_text, "lxml")
-        kls = "base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card "
-        kls += "base-search-card--link job-search-card"
+        kls = (
+            "base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card "
+            + "base-search-card--link job-search-card"
+        )
         main = soup.find("main")
         unordered_list = main.find("ul")
         companies = unordered_list.find_all("a", class_="hidden-nested-link")
@@ -138,9 +140,3 @@ class JobScraper:
                 if "." in paragraph.text:
                     date = paragraph.text
             yield company, description, date, link
-
-
-if __name__ == "__main__":
-    jobs = JobScraper().scrape_joberty()
-    while jobs:
-        print(next(jobs))

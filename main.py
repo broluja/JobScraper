@@ -102,7 +102,7 @@ class JobScraperApp(ctk.CTk):
     def change_appearance(new_appearance_mode: str) -> None:
         ctk.set_appearance_mode(new_appearance_mode)
 
-    def configure_window(self):
+    def configure_window(self) -> None:
         """Configure window size, name and grid layout (4×4)"""
         self.title("Scrape Jobs APP")
         self.geometry(f"{WIDTH}x{HEIGHT}+600+200")
@@ -111,7 +111,7 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.wm_iconbitmap("files/spider.ico")
+        # self.wm_iconbitmap("files/spider.ico")
 
     def yield_jobs(self):
         if self.tabview.tab != "Job Adds":
@@ -185,14 +185,14 @@ class JobScraperApp(ctk.CTk):
                     self.job_frame.add_item("End of queue.")
                     self.joberty = None
 
-    def is_already_applied(self, company: str | None, description: str | None, link: str | None):
+    def is_already_applied(self, company: str | None, description: str | None, link: str | None) -> bool:
         applied_adds = list(self.applied_adds.values())
         for add in applied_adds:
             if add["company"] == company and add["job_description"] == description and add["link"] == link:
                 return True
         return False
 
-    def save_applied_ad(self, *args):
+    def save_applied_ad(self, *args) -> None:
         company, description, link = args
         self.filer.save_ad(company, description, link)
         self.job_frame.switch()
