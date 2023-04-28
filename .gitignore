@@ -131,4 +131,6 @@ dmypy.json
 # PyCharm, JetBrains
 .idea
 
-applied-ads.txt
+files/applied-ads.txt
+files/file_version_info.txt
+files/metadata.yml

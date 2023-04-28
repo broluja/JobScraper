@@ -111,7 +111,7 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.wm_iconbitmap("spider.ico")
+        self.wm_iconbitmap("files/spider.ico")
 
     def yield_jobs(self):
         if self.tabview.tab != "Job Adds":
