@@ -9,7 +9,7 @@ class JobScraper:
     """Class for scraping sites."""
 
     infostud = "https://poslovi.infostud.com/oglasi-za-posao-python-developer?scope=srpoz&esource=homepage"
-    hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer"
+    hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer?sort=p_vreme_postavljanja_sort"
     linked_in = """https://www.linkedin.com/jobs/search/?currentJobId=3557468116&f_TPR=r604800&geoId=101855366&
     keywords=python%20developer&location=Serbia&refresh=true"""
     teamcubate = "https://careers.teamcubate.com"
@@ -128,13 +128,12 @@ class JobScraper:
         site = "https://www.helloworld.rs/"
 
         soup = BeautifulSoup(html_text, "lxml")
-        kls = "relative bg-transparent shadow-none border border-gray-600 dark:bg-gray-800 rounded-lg overflow-hidden"
-        jobs_add = soup.find_all("div", class_=kls)
-        for job_add in jobs_add:
-            description = job_add.find("h3").text.strip()
-            link = site + job_add.find("h3").a["href"]
-            company = job_add.find("h4").text.strip()
-            paragraphs = job_add.find_all("p", class_="text-sm font-semibold")
+        ads = soup.find_all("div", class_="flex flex-col gap-4 flex-1 px-4 md:pl-4 mb-4 w-full")
+        for ad in ads:
+            description = ad.h3.text.strip()
+            company = ad.h4.text.strip()
+            link = site + ad.h3.a["href"]
+            paragraphs = ad.find_all("p", class_="text-sm font-semibold")
             date = None
             for paragraph in paragraphs:
                 if "." in paragraph.text:
