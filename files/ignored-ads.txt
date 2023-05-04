@@ -8,5 +8,10 @@
         "company": null,
         "job_description": "React / React Native Developer - Remote",
         "link": "https://careers.teamcubate.com/jobs/2759623-react-react-native-developer-remote"
+    },
+    "fa456d0e-760e-4a1a-861d-74eda5f85700": {
+        "company": "Concentrical",
+        "job_description": "Python Data Engineer",
+        "link": "https://www.helloworld.rs//posao/Python-Data-Engineer/Concentrical/516907?scope=srpoz&sort=p_vreme_postavljanja_sort&q=Python+Developer&disable_saved_search=0&show_more=1&ilist=11&item_index=0"
     }
 }

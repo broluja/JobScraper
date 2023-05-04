@@ -194,17 +194,21 @@ class JobScraperApp(ctk.CTk):
 
     def is_already_applied(self, company: str | None, description: str | None, link: str | None) -> bool:
         applied_ads = list(self.applied_ads.values())
-        for add in applied_ads:
-            if add["company"] == company and add["job_description"] == description and add["link"] == link:
-                return True
-        return False
+        return any(
+            add["company"] == company
+            and add["job_description"] == description
+            and add["link"] == link
+            for add in applied_ads
+        )
 
     def is_ignored(self, company: str | None, description: str | None, link: str | None) -> bool:
         ignored_ads = list(self.ignored_ads.values())
-        for add in ignored_ads:
-            if add["company"] == company and add["job_description"] == description and add["link"] == link:
-                return True
-        return False
+        return any(
+            add["company"] == company
+            and add["job_description"] == description
+            and add["link"] == link
+            for add in ignored_ads
+        )
 
     def save_applied_ad(self, *args, ignore=False):
         company, description, link = args
