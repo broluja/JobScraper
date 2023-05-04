@@ -210,7 +210,9 @@ class JobScraperApp(ctk.CTk):
         company, description, link = args
         if ignore:
             self.filer.ignore_ad(company, description, link)
+            self.job_frame.switch(ignoring=True)
             self.ignored_ads = self.filer.read(ignoring=True)
+            # TODO: add ignored ads tab.
         else:
             self.filer.save_ad(company, description, link)
             self.job_frame.switch()

@@ -3,5 +3,10 @@
         "company": null,
         "job_description": "FullStack Magento Developer / Remote",
         "link": "https://careers.teamcubate.com/jobs/2578141-fullstack-magento-developer-remote"
+    },
+    "0f3bacea-42a0-4f5a-adfd-f509ccbeaed7": {
+        "company": null,
+        "job_description": "React / React Native Developer - Remote",
+        "link": "https://careers.teamcubate.com/jobs/2759623-react-react-native-developer-remote"
     }
 }

@@ -108,12 +108,15 @@ class JobsFrame(ctk.CTkScrollableFrame):
         for index, ad in enumerate(iterable, start=1):
             self.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + index)
 
-    def switch(self):
+    def switch(self, ignoring=False):
         self.mark_button.destroy()
         self.mark_button = None
         self.ignore_button.destroy()
         self.ignore_button = None
-        self.checker = ctk.CTkCheckBox(self, text="Applied for this one")
+        if ignoring:
+            self.checker = ctk.CTkCheckBox(self, text="Ignored.")
+        else:
+            self.checker = ctk.CTkCheckBox(self, text="Applied for this one.")
         self.checker.grid(row=5, column=1)
         self.checker.select()
         self.checker.configure(state="disabled")
