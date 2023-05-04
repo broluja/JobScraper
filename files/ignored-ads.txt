@@ -1,0 +1,17 @@
+{
+    "f958a866-afcb-45d3-8397-2b7a3a16adb9": {
+        "company": null,
+        "job_description": "React / React Native Developer - Remote",
+        "link": "https://careers.teamcubate.com/jobs/2759623-react-react-native-developer-remote"
+    },
+    "b3172a63-57a9-4d3b-aa1a-88dc6f692fdb": {
+        "company": null,
+        "job_description": "Senior JavaScript / TypeScript Developer / Remote",
+        "link": "https://careers.teamcubate.com/jobs/2758736-senior-javascript-typescript-developer-remote"
+    },
+    "f16dd462-d5d5-459e-955f-68f576f19178": {
+        "company": null,
+        "job_description": "FullStack Magento Developer / Remote",
+        "link": "https://careers.teamcubate.com/jobs/2578141-fullstack-magento-developer-remote"
+    }
+}

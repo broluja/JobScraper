@@ -6,12 +6,14 @@ import customtkinter as ctk
 
 class APPLabel(ctk.CTkLabel):
     """Custom APP label with custom font size and weight."""
+
     def __init__(self, size: int = 18, **kwargs):
         super().__init__(**kwargs, font=ctk.CTkFont(size=size, weight="bold"))
 
 
 class LinkLabel(ctk.CTkLabel):
     """Custom APP Label representing a link."""
+
     def __init__(self, link: str, command=None, size: int = 18, **kwargs):
         super().__init__(**kwargs, font=ctk.CTkFont(size=size, weight="bold"))
         self.link = link
@@ -25,13 +27,15 @@ class LinkLabel(ctk.CTkLabel):
 
 class JobsFrame(ctk.CTkScrollableFrame):
     """Class inherits tkinter frame widget customized to be scrollable with labels and buttons."""
+
     def __init__(self, command_1=None, command_2=None, **kwargs):
         super().__init__(**kwargs)
         self.grid_columnconfigure(1, weight=1)
         self.command_one = command_1
         self.command_two = command_2
         self.label_list = []
-        self.button = None
+        self.mark_button = None
+        self.ignore_button = None
         self.checker = None
         self.applied_ads_labels = []
 
@@ -51,12 +55,19 @@ class JobsFrame(ctk.CTkScrollableFrame):
         more_info.grid(row=3, column=1, pady=(0, 10), sticky="w")
         self.label_list.extend([description, company, deadline, more_info])
         if text1 != "End of queue.":
-            self.button = ctk.CTkButton(
+            self.mark_button = ctk.CTkButton(
                 self,
                 text="Mark as applied",
                 command=lambda x=comp, y=desc, z=link: self.command_one(x, y, z),
                 width=100)
-            self.button.grid(row=5, column=1, padx=10, pady=20)
+            self.mark_button.grid(row=5, column=1, padx=10, pady=20)
+            self.ignore_button = ctk.CTkButton(
+                self,
+                text="Ignore Ad",
+                command=lambda x=comp, y=desc, z=link: self.command_one(x, y, z, ignore=True),
+                width=100
+            )
+            self.ignore_button.grid(row=6, column=1, padx=10)
 
     def add_applied_ads(self, company: str, position: str, date, link: str, index):
         text1 = f"{company} - {position} - Date applied: {date}"
@@ -69,7 +80,7 @@ class JobsFrame(ctk.CTkScrollableFrame):
                                padx=5,
                                size=14,
                                text_color="gray")
-        ad_label.grid(row=index-1, column=1, sticky="w")
+        ad_label.grid(row=index - 1, column=1, sticky="w")
         link_label.grid(row=index, column=1, pady=(0, 25), sticky="w")
         self.applied_ads_labels.extend([ad_label, link_label])
 
@@ -77,12 +88,15 @@ class JobsFrame(ctk.CTkScrollableFrame):
         for label in self.label_list:
             label.destroy()
         self.label_list.clear()
-        if self.button:
-            self.button.destroy()
-            self.button = None
+        if self.mark_button:
+            self.mark_button.destroy()
+            self.mark_button = None
         if self.checker:
             self.checker.destroy()
             self.checker = None
+        if self.ignore_button:
+            self.ignore_button.destroy()
+            self.ignore_button = None
 
     def remove_applied_ads_labels(self):
         for label in self.applied_ads_labels:
@@ -96,8 +110,10 @@ class JobsFrame(ctk.CTkScrollableFrame):
             self.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + count)
 
     def switch(self):
-        self.button.destroy()
-        self.button = None
+        self.mark_button.destroy()
+        self.mark_button = None
+        self.ignore_button.destroy()
+        self.ignore_button = None
         self.checker = ctk.CTkCheckBox(self, text="Applied for this one")
         self.checker.grid(row=5, column=1)
         self.checker.select()

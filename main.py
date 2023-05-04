@@ -21,7 +21,8 @@ class JobScraperApp(ctk.CTk):
         self.teamcubate_adds = None
         self.jooble = None
         self.joberty = None
-        self.applied_adds = self.filer.read()
+        self.applied_ads = self.filer.read()
+        self.ignored_ads = self.filer.read(ignoring=True)
 
         # Create sidebar frame with widgets
         self.side_frame = ctk.CTkFrame(self, width=WIDTH // 10, corner_radius=0, border_width=1)
@@ -70,7 +71,7 @@ class JobScraperApp(ctk.CTk):
         self.job_frame = JobsFrame(
             master=self.tabview.tab("Job Adds"),
             width=WIDTH,
-            height=HEIGHT*0.8,
+            height=HEIGHT * 0.8,
             command_1=self.save_applied_ad
         )
         self.job_frame.grid(row=1, column=0, pady=(10, 0))
@@ -79,11 +80,11 @@ class JobScraperApp(ctk.CTk):
         self.applications_frame = JobsFrame(
             master=self.tabview.tab("My Applications"),
             width=WIDTH,
-            height=HEIGHT*0.8,
+            height=HEIGHT * 0.8,
             command_1=None
         )
         self.applications_frame.grid(row=1, column=0, pady=(10, 0))
-        self.applications_frame.populate_applied_ads_labels(self.applied_adds.values())
+        self.applications_frame.populate_applied_ads_labels(self.applied_ads.values())
 
     @property
     def scraper(self):
@@ -123,7 +124,8 @@ class JobScraperApp(ctk.CTk):
                     self.hello_world_adds = self.scraper.scrape_hello_world()
                 try:
                     company, description, date, link = next(self.hello_world_adds)
-                    while self.is_already_applied(company=company, description=description, link=link):
+                    while self.is_already_applied(company, description, link) or self.is_ignored(company, description,
+                                                                                                 link):
                         company, description, date, link = next(self.hello_world_adds)
                     self.job_frame.add_item(description, company, date, link)
                 except StopIteration:
@@ -134,7 +136,8 @@ class JobScraperApp(ctk.CTk):
                     self.infostud_adds = self.scraper.scrape_infostud()
                 try:
                     title, company, link = next(self.infostud_adds)
-                    while self.is_already_applied(company=company, description=title, link=link):
+                    while self.is_already_applied(company=company, description=None, link=link) or self.is_ignored(
+                            company=company, description=None, link=link):
                         title, company, link = next(self.infostud_adds)
                     self.job_frame.add_item(title, company, date=None, link=link)
                 except StopIteration:
@@ -144,10 +147,11 @@ class JobScraperApp(ctk.CTk):
                 if self.linked_in_adds is None:
                     self.linked_in_adds = self.scraper.scrape_linkedin()
                 try:
-                    company_name, description, link = next(self.linked_in_adds)
-                    while self.is_already_applied(company=company_name, description=description, link=link):
-                        company_name, description, link = next(self.linked_in_adds)
-                    self.job_frame.add_item(description, company_name, date=None, link=link)
+                    company, description, link = next(self.linked_in_adds)
+                    while self.is_already_applied(company, description, link) or self.is_ignored(company, description,
+                                                                                                 link):
+                        company, description, link = next(self.linked_in_adds)
+                    self.job_frame.add_item(description, company, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.linked_in_adds = None
@@ -156,7 +160,8 @@ class JobScraperApp(ctk.CTk):
                     self.teamcubate_adds = self.scraper.scrape_teamcubate()
                 try:
                     description, link = next(self.teamcubate_adds)
-                    while self.is_already_applied(company=None, description=description, link=link):
+                    while self.is_already_applied(company=None, description=description, link=link) or self.is_ignored(
+                            company=None, description=description, link=link):
                         description, link = next(self.teamcubate_adds)
                     self.job_frame.add_item(desc=description, link=link)
                 except StopIteration:
@@ -167,7 +172,8 @@ class JobScraperApp(ctk.CTk):
                     self.jooble = self.scraper.scrape_jooble()
                 try:
                     company, description, link, date = next(self.jooble)
-                    while self.is_already_applied(company=company, description=description, link=link):
+                    while self.is_already_applied(company=company, description=None, link=link) or self.is_ignored(
+                            company=company, description=None, link=link):
                         company, description, link, date = next(self.jooble)
                     self.job_frame.add_item(description, company, date, link, date_form="Published on")
                 except StopIteration:
@@ -178,26 +184,38 @@ class JobScraperApp(ctk.CTk):
                     self.joberty = self.scraper.scrape_joberty()
                 try:
                     company, description, link, date = next(self.joberty)
-                    while self.is_already_applied(company=company, description=description, link=link):
+                    while self.is_already_applied(company=company, description=None, link=link) or self.is_ignored(
+                            company=company, description=None, link=link):
                         company, description, link, date = next(self.joberty)
                     self.job_frame.add_item(description, company, date, link, date_form="Expires on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.joberty = None
 
-    def is_already_applied(self, company: str | None, description: str | None, link: str | None):
-        applied_adds = list(self.applied_adds.values())
-        for add in applied_adds:
+    def is_already_applied(self, company: str | None, description: str | None, link: str | None) -> bool:
+        applied_ads = list(self.applied_ads.values())
+        for add in applied_ads:
             if add["company"] == company and add["job_description"] == description and add["link"] == link:
                 return True
         return False
 
-    def save_applied_ad(self, *args):
+    def is_ignored(self, company: str | None, description: str | None, link: str | None) -> bool:
+        ignored_ads = list(self.ignored_ads.values())
+        for add in ignored_ads:
+            if add["company"] == company and add["job_description"] == description and add["link"] == link:
+                return True
+        return False
+
+    def save_applied_ad(self, *args, ignore=False):
         company, description, link = args
-        self.filer.save_ad(company, description, link)
-        self.job_frame.switch()
-        self.applied_adds = self.filer.read()
-        self.applications_frame.populate_applied_ads_labels(self.applied_adds.values())
+        if ignore:
+            self.filer.ignore_ad(company, description, link)
+            self.ignored_ads = self.filer.read(ignoring=True)
+        else:
+            self.filer.save_ad(company, description, link)
+            self.job_frame.switch()
+            self.applied_ads = self.filer.read()
+            self.applications_frame.populate_applied_ads_labels(self.applied_ads.values())
 
 
 if __name__ == "__main__":
