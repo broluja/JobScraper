@@ -49,8 +49,10 @@ class Filer:
                 with open(self.filename) as reader:
                     records = json.loads(reader.read())
                 return records
-            except FileNotFoundError:
-                raise InitializeFileError(f"We cannot find file: {self.filename}. Make sure you initialized files.")
+            except FileNotFoundError as e:
+                raise InitializeFileError(
+                    f"We cannot find file: {self.filename}. Make sure you initialized files."
+                ) from e
 
     def write(self, records: dict, ignoring=False) -> None:
         """
@@ -69,10 +71,12 @@ class Filer:
             try:
                 with open(self.filename, "w") as writer:
                     writer.write(json.dumps(records, indent=4))
-            except FileNotFoundError:
-                raise InitializeFileError(f"We cannot find file: {self.filename}. Make sure you initialized files.")
+            except FileNotFoundError as e:
+                raise InitializeFileError(
+                    f"We cannot find file: {self.filename}. Make sure you initialized files."
+                ) from e
 
-    def save_ad(self, company: str, description: str, link: str, date_applied: str = date.today().isoformat()) -> None:
+    def save_ad(self, company, description, link, date_applied=date.today().isoformat()) -> None:
         """
         Storing ad to the database.
 

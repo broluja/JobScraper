@@ -69,9 +69,9 @@ class JobsFrame(ctk.CTkScrollableFrame):
             )
             self.ignore_button.grid(row=6, column=1, padx=10)
 
-    def add_applied_ads(self, company: str, position: str, date, link: str, index):
+    def add_applied_ads(self, company: str, position: str, date, link: str, index) -> None:
         text1 = f"{company} - {position} - Date applied: {date}"
-        text2 = f"Click here to open ad link."
+        text2 = "Click here to open ad link."
         ad_label = APPLabel(master=self, text=text1, compound="left", padx=5, anchor="w", size=17, text_color="#1f538d")
         link_label = LinkLabel(master=self,
                                command=lambda e: self.open_browser(e),
@@ -98,16 +98,15 @@ class JobsFrame(ctk.CTkScrollableFrame):
             self.ignore_button.destroy()
             self.ignore_button = None
 
-    def remove_applied_ads_labels(self):
+    def remove_applied_ads_labels(self) -> None:
         for label in self.applied_ads_labels:
             label.destroy()
         self.applied_ads_labels.clear()
 
-    def populate_applied_ads_labels(self, iterable):
+    def populate_applied_ads_labels(self, iterable) -> None:
         self.remove_applied_ads_labels()
         for index, ad in enumerate(iterable, start=1):
-            count = index
-            self.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + count)
+            self.add_applied_ads(ad["company"], ad["job_description"], ad["date_applied"], ad["link"], index + index)
 
     def switch(self):
         self.mark_button.destroy()
@@ -120,5 +119,5 @@ class JobsFrame(ctk.CTkScrollableFrame):
         self.checker.configure(state="disabled")
 
     @staticmethod
-    def open_browser(link: str):
+    def open_browser(link: str) -> None:
         webbrowser.open(link)
