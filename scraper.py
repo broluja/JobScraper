@@ -10,8 +10,6 @@ class JobScraper:
 
     infostud = "https://poslovi.infostud.com/oglasi-za-posao-python-developer?scope=srpoz&esource=homepage"
     hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer?sort=p_vreme_postavljanja_sort"
-    linked_in = """https://www.linkedin.com/jobs/search/?currentJobId=3557468116&f_TPR=r604800&geoId=101855366&
-    keywords=python%20developer&location=Serbia&refresh=true"""
     teamcubate = "https://careers.teamcubate.com"
     jooble = "https://rs.jooble.org/SearchResult?p=3&rgns=Srbija&ukw=python"
     joberty = "https://backend-test.joberty.rs/api/v1/jobs"
@@ -91,24 +89,6 @@ class JobScraper:
                 yield description, link
             except AttributeError:
                 continue
-
-    def scrape_linkedin(self):
-        html_text = requests.get(self.linked_in).text
-        soup = BeautifulSoup(html_text, "lxml")
-        kls = (
-            "base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card "
-            + "base-search-card--link job-search-card"
-        )
-        main = soup.find("main")
-        unordered_list = main.find("ul")
-        companies = unordered_list.find_all("a", class_="hidden-nested-link")
-        divs = unordered_list.find_all("div", class_=kls)
-
-        for div, company in zip(divs, companies):
-            company_name = company.text.strip()
-            job_description = div.a.span.text.strip()
-            link = div.a['href']
-            yield company_name, job_description, link
 
     def scrape_infostud(self):
         html_text = requests.get(self.infostud).text

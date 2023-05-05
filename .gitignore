@@ -132,5 +132,6 @@ dmypy.json
 .idea
 
 files/applied-ads.txt
+files/ignored-ads.txt
 files/file_version_info.txt
 files/metadata.yml

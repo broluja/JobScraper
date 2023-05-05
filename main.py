@@ -17,7 +17,6 @@ class JobScraperApp(ctk.CTk):
         self.configure_window()
         self.hello_world_adds = None
         self.infostud_adds = None
-        self.linked_in_adds = None
         self.teamcubate_adds = None
         self.jooble = None
         self.joberty = None
@@ -36,14 +35,12 @@ class JobScraperApp(ctk.CTk):
         self.radio_button_1.grid(row=2, column=0, pady=8, padx=20, sticky="n")
         self.radio_button_2 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=1, text="Infostud")
         self.radio_button_2.grid(row=3, column=0, pady=8, padx=20, sticky="n")
-        self.radio_button_3 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=2, text="LinkedIn")
-        self.radio_button_3.grid(row=4, column=0, pady=8, padx=20, sticky="n")
-        self.radio_button_4 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=3, text="Teamcubate")
-        self.radio_button_4.grid(row=5, column=0, pady=8, padx=20, sticky="n")
-        self.radio_button_5 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=4, text="Jooble")
-        self.radio_button_5.grid(row=6, column=0, pady=8, padx=20, sticky="n")
-        self.radio_button_6 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=5, text="Joberty")
-        self.radio_button_6.grid(row=7, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_3 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=2, text="Teamcubate")
+        self.radio_button_3.grid(row=5, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_4 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=3, text="Jooble")
+        self.radio_button_4.grid(row=6, column=0, pady=8, padx=20, sticky="n")
+        self.radio_button_5 = ctk.CTkRadioButton(self.side_frame, variable=self.radio_var, value=4, text="Joberty")
+        self.radio_button_5.grid(row=7, column=0, pady=8, padx=20, sticky="n")
 
         self.btn_one = ctk.CTkButton(self.side_frame, text="Scrape Site", command=self.yield_jobs)
         self.btn_one.grid(row=8, column=0, padx=35, pady=(10, 10), sticky="nsew")
@@ -123,11 +120,10 @@ class JobScraperApp(ctk.CTk):
                 if self.hello_world_adds is None:
                     self.hello_world_adds = self.scraper.scrape_hello_world()
                 try:
-                    company, description, date, link = next(self.hello_world_adds)
-                    while self.is_already_applied(company, description, link) or self.is_ignored(company, description,
-                                                                                                 link):
-                        company, description, date, link = next(self.hello_world_adds)
-                    self.job_frame.add_item(description, company, date, link)
+                    comp, description, date, link = next(self.hello_world_adds)
+                    while self.is_already_applied(comp, description, link) or self.is_ignored(comp, description, link):
+                        comp, description, date, link = next(self.hello_world_adds)
+                    self.job_frame.add_item(description, comp, date, link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.hello_world_adds = None
@@ -136,58 +132,45 @@ class JobScraperApp(ctk.CTk):
                     self.infostud_adds = self.scraper.scrape_infostud()
                 try:
                     title, company, link = next(self.infostud_adds)
-                    while self.is_already_applied(company=company, description=None, link=link) or self.is_ignored(
-                            company=company, description=None, link=link):
+                    while self.is_already_applied(company=company, description=title, link=link) or self.is_ignored(
+                            company=company, description=title, link=link):
                         title, company, link = next(self.infostud_adds)
                     self.job_frame.add_item(title, company, date=None, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.infostud_adds = None
+
             case 2:
-                if self.linked_in_adds is None:
-                    self.linked_in_adds = self.scraper.scrape_linkedin()
-                try:
-                    company, description, link = next(self.linked_in_adds)
-                    while self.is_already_applied(company, description, link) or self.is_ignored(company, description,
-                                                                                                 link):
-                        company, description, link = next(self.linked_in_adds)
-                    self.job_frame.add_item(description, company, date=None, link=link)
-                except StopIteration:
-                    self.job_frame.add_item("End of queue.")
-                    self.linked_in_adds = None
-            case 3:
                 if self.teamcubate_adds is None:
                     self.teamcubate_adds = self.scraper.scrape_teamcubate()
                 try:
-                    description, link = next(self.teamcubate_adds)
-                    while self.is_already_applied(company=None, description=description, link=link) or self.is_ignored(
-                            company=None, description=description, link=link):
-                        description, link = next(self.teamcubate_adds)
-                    self.job_frame.add_item(desc=description, link=link)
+                    desc, link = next(self.teamcubate_adds)
+                    while self.is_already_applied(company=None, description=desc, link=link) or self.is_ignored(
+                            company=None, description=desc, link=link):
+                        desc, link = next(self.teamcubate_adds)
+                    self.job_frame.add_item(desc=desc, link=link)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.teamcubate_adds = None
-            case 4:
+            case 3:
                 if self.jooble is None:
                     self.jooble = self.scraper.scrape_jooble()
                 try:
-                    company, description, link, date = next(self.jooble)
-                    while self.is_already_applied(company=company, description=None, link=link) or self.is_ignored(
-                            company=company, description=None, link=link):
-                        company, description, link, date = next(self.jooble)
-                    self.job_frame.add_item(description, company, date, link, date_form="Published on")
+                    comp, description, link, date = next(self.jooble)
+                    while self.is_already_applied(comp, description, link) or self.is_ignored(comp, description, link):
+                        comp, description, link, date = next(self.jooble)
+                    self.job_frame.add_item(description, comp, date, link, date_form="Published on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.jooble = None
-            case 5:
+            case 4:
                 if self.joberty is None:
                     self.joberty = self.scraper.scrape_joberty()
                 try:
-                    company, description, link, date = next(self.joberty)
-                    while self.is_already_applied(company=company, description=None, link=link) or self.is_ignored(
-                            company=company, description=None, link=link):
-                        company, description, link, date = next(self.joberty)
-                    self.job_frame.add_item(description, company, date, link, date_form="Expires on")
+                    comp, description, link, date = next(self.joberty)
+                    while self.is_already_applied(comp, description, link) or self.is_ignored(comp, description, link):
+                        comp, description, link, date = next(self.joberty)
+                    self.job_frame.add_item(description, comp, date, link, date_form="Expires on")
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.joberty = None
