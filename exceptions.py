@@ -16,3 +16,11 @@ class InitializeFileError(APPException):
 
 class EndOfAdsException(APPException):
     message = "End of ads queue."
+
+
+class SkippedAdError(APPException):
+    message = "Ad skipped."
+
+
+class NetworkException(APPException):
+    message = "Network problem or unknown link."

@@ -5,6 +5,7 @@ from scraper import JobScraper
 from config import *
 from widgets import APPLabel, JobsFrame
 from filer import Filer
+from exceptions import APPException
 
 
 class JobScraperApp(ctk.CTk):
@@ -109,7 +110,7 @@ class JobScraperApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        # self.wm_iconbitmap("files/spider.ico")
+        self.wm_iconbitmap("files/spider.ico")
 
     def yield_jobs(self):
         if self.tabview.tab != "Job Adds":
@@ -120,10 +121,12 @@ class JobScraperApp(ctk.CTk):
                 if self.hello_world_adds is None:
                     self.hello_world_adds = self.scraper.scrape_hello_world()
                 try:
-                    comp, description, date, link = next(self.hello_world_adds)
-                    while self.is_already_applied(comp, description, link) or self.is_ignored(comp, description, link):
-                        comp, description, date, link = next(self.hello_world_adds)
-                    self.job_frame.add_item(description, comp, date, link)
+                    comp, desc, date, link = next(self.hello_world_adds)
+                    while self.ad_is_already_applied(comp, desc, link) or self.ad_is_ignored(comp, desc, link):
+                        comp, desc, date, link = next(self.hello_world_adds)
+                    self.job_frame.add_item(desc, comp, date, link)
+                except APPException as exc:
+                    self.job_frame.add_item(exc.message)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.hello_world_adds = None
@@ -131,11 +134,13 @@ class JobScraperApp(ctk.CTk):
                 if self.infostud_adds is None:
                     self.infostud_adds = self.scraper.scrape_infostud()
                 try:
-                    title, company, link = next(self.infostud_adds)
-                    while self.is_already_applied(company=company, description=title, link=link) or self.is_ignored(
-                            company=company, description=title, link=link):
-                        title, company, link = next(self.infostud_adds)
-                    self.job_frame.add_item(title, company, date=None, link=link)
+                    title, comp, link = next(self.infostud_adds)
+                    while self.ad_is_already_applied(company=comp, description=title, link=link) or self.ad_is_ignored(
+                            company=comp, description=title, link=link):
+                        title, comp, link = next(self.infostud_adds)
+                    self.job_frame.add_item(title, comp, date=None, link=link)
+                except APPException as exc:
+                    self.job_frame.add_item(exc.message)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.infostud_adds = None
@@ -145,10 +150,12 @@ class JobScraperApp(ctk.CTk):
                     self.teamcubate_adds = self.scraper.scrape_teamcubate()
                 try:
                     desc, link = next(self.teamcubate_adds)
-                    while self.is_already_applied(company=None, description=desc, link=link) or self.is_ignored(
+                    while self.ad_is_already_applied(company=None, description=desc, link=link) or self.ad_is_ignored(
                             company=None, description=desc, link=link):
                         desc, link = next(self.teamcubate_adds)
                     self.job_frame.add_item(desc=desc, link=link)
+                except APPException as exc:
+                    self.job_frame.add_item(exc.message)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.teamcubate_adds = None
@@ -156,10 +163,12 @@ class JobScraperApp(ctk.CTk):
                 if self.jooble is None:
                     self.jooble = self.scraper.scrape_jooble()
                 try:
-                    comp, description, link, date = next(self.jooble)
-                    while self.is_already_applied(comp, description, link) or self.is_ignored(comp, description, link):
-                        comp, description, link, date = next(self.jooble)
-                    self.job_frame.add_item(description, comp, date, link, date_form="Published on")
+                    comp, desc, link, date = next(self.jooble)
+                    while self.ad_is_already_applied(comp, desc, link) or self.ad_is_ignored(comp, desc, link):
+                        comp, desc, link, date = next(self.jooble)
+                    self.job_frame.add_item(desc, comp, date, link, date_form="Published on")
+                except APPException as exc:
+                    self.job_frame.add_item(exc.message)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.jooble = None
@@ -167,15 +176,17 @@ class JobScraperApp(ctk.CTk):
                 if self.joberty is None:
                     self.joberty = self.scraper.scrape_joberty()
                 try:
-                    comp, description, link, date = next(self.joberty)
-                    while self.is_already_applied(comp, description, link) or self.is_ignored(comp, description, link):
-                        comp, description, link, date = next(self.joberty)
-                    self.job_frame.add_item(description, comp, date, link, date_form="Expires on")
+                    comp, desc, link, date = next(self.joberty)
+                    while self.ad_is_already_applied(comp, desc, link) or self.ad_is_ignored(comp, desc, link):
+                        comp, desc, link, date = next(self.joberty)
+                    self.job_frame.add_item(desc, comp, date, link, date_form="Expires on")
+                except APPException as exc:
+                    self.job_frame.add_item(exc.message)
                 except StopIteration:
                     self.job_frame.add_item("End of queue.")
                     self.joberty = None
 
-    def is_already_applied(self, company: str | None, description: str | None, link: str | None) -> bool:
+    def ad_is_already_applied(self, company: str | None, description: str | None, link: str | None) -> bool:
         applied_ads = list(self.applied_ads.values())
         return any(
             add["company"] == company
@@ -184,7 +195,7 @@ class JobScraperApp(ctk.CTk):
             for add in applied_ads
         )
 
-    def is_ignored(self, company: str | None, description: str | None, link: str | None) -> bool:
+    def ad_is_ignored(self, company: str | None, description: str | None, link: str | None) -> bool:
         ignored_ads = list(self.ignored_ads.values())
         return any(
             add["company"] == company
@@ -195,16 +206,21 @@ class JobScraperApp(ctk.CTk):
 
     def save_applied_ad(self, *args, ignore=False):
         company, description, link = args
-        if ignore:
-            self.filer.ignore_ad(company, description, link)
-            self.job_frame.switch(ignoring=True)
-            self.ignored_ads = self.filer.read(ignoring=True)
-            # TODO: add ignored ads tab.
-        else:
-            self.filer.save_ad(company, description, link)
-            self.job_frame.switch()
-            self.applied_ads = self.filer.read()
-            self.applications_frame.populate_applied_ads_labels(self.applied_ads.values())
+        try:
+            if ignore:
+                self.filer.ignore_ad(company, description, link)
+                self.job_frame.switch(ignoring=True)
+                self.ignored_ads = self.filer.read(ignoring=True)
+                # TODO: add ignored ads tab.
+            else:
+                self.filer.save_ad(company, description, link)
+                self.job_frame.switch()
+                self.applied_ads = self.filer.read()
+                self.applications_frame.populate_applied_ads_labels(self.applied_ads.values())
+        except APPException as exc:
+            self.job_frame.add_item(exc.message)
+        except Exception as exc:
+            self.job_frame.add_item(str(exc))
 
 
 if __name__ == "__main__":

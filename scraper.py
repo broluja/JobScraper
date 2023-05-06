@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 
 from utils import slugify
+from exceptions import *
 
 
 class JobScraper:
@@ -10,7 +11,7 @@ class JobScraper:
 
     infostud = "https://poslovi.infostud.com/oglasi-za-posao-python-developer?scope=srpoz&esource=homepage"
     hello_world = "https://www.helloworld.rs/oglasi-za-posao-python-developer?sort=p_vreme_postavljanja_sort"
-    teamcubate = "https://careers.teamcubate.com"
+    teamcubate = "https://careers.teamcubate.com/jobs"
     jooble = "https://rs.jooble.org/SearchResult?p=3&rgns=Srbija&ukw=python"
     joberty = "https://backend-test.joberty.rs/api/v1/jobs"
 
@@ -30,17 +31,18 @@ class JobScraper:
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '^\\^Windows^\\^',
         }
-
         params = (
             ('page', '0'),
             ('pageSize', '10'),
             ('search', 'python'),
-            ('sort', 'created'),
+            ('sort', 'created')
         )
+        try:
+            response = requests.get(self.joberty, headers=headers, params=params).json()
+        except Exception as exc:
+            raise NetworkException from exc
 
-        response = requests.get(self.joberty, headers=headers, params=params).json()
         total_page = response["totalPage"]
-
         for i in range(total_page):
             params = (
                 ('page', i),
@@ -61,10 +63,16 @@ class JobScraper:
                     link = f"https://www.joberty.rs/posao/{path}"
                     yield company, job_title, link, expiration_date
                 except AttributeError:
-                    continue
+                    raise SkippedAdError
+                except Exception as exc:
+                    raise APPException from exc
 
     def scrape_jooble(self):
-        html_text = requests.get(self.jooble).text
+        try:
+            html_text = requests.get(self.jooble).text
+        except Exception as exc:
+            raise NetworkException from exc
+
         soup = BeautifulSoup(html_text, "lxml")
         main = soup.find("main", class_="yYtoPY")
         articles = main.find_all("article")
@@ -76,10 +84,16 @@ class JobScraper:
                 company = article.find("div", class_="_1JrOtp _30OfJk").text
                 yield company, description, link, date
             except AttributeError:
-                continue
+                raise SkippedAdError
+            except Exception as exc:
+                raise APPException from exc
 
     def scrape_teamcubate(self):
-        html_text = requests.get(self.teamcubate).text
+        try:
+            html_text = requests.get(self.teamcubate).text
+        except Exception as exc:
+            raise NetworkException from exc
+
         soup = BeautifulSoup(html_text, "lxml")
         job_adds = soup.find_all("li", class_="w-full")
         for job_add in job_adds:
@@ -88,34 +102,53 @@ class JobScraper:
                 description = job_add.a.span.text
                 yield description, link
             except AttributeError:
-                continue
+                raise SkippedAdError
+            except Exception as exc:
+                raise APPException from exc
 
     def scrape_infostud(self):
-        html_text = requests.get(self.infostud).text
+        try:
+            html_text = requests.get(self.infostud).text
+        except Exception as exc:
+            raise NetworkException from exc
+
         soup = BeautifulSoup(html_text, "lxml")
         job_titles = soup.find_all(
             "div", class_="job uk-card uk-card-small uk-card-default uk-card-body uk-margin-bottom uk-box-shadow-small"
         )
         for job_title in job_titles:
-            title = job_title.h2.text.strip()
-            company = job_title.p.text.strip()
-            path = job_title.h2.a["href"]
-            link = f"https://poslovi.infostud.com/{path}"
-            yield title, company, link
+            try:
+                title = job_title.h2.text.strip()
+                company = job_title.p.text.strip()
+                path = job_title.h2.a["href"]
+                link = f"https://poslovi.infostud.com/{path}"
+                yield title, company, link
+            except AttributeError:
+                raise SkippedAdError
+            except Exception as exc:
+                raise APPException from exc
 
     def scrape_hello_world(self):
-        html_text = requests.get(self.hello_world).text
-        site = "https://www.helloworld.rs/"
+        try:
+            html_text = requests.get(self.hello_world).text
+        except Exception as exc:
+            raise NetworkException from exc
 
+        site = "https://www.helloworld.rs/"
         soup = BeautifulSoup(html_text, "lxml")
         ads = soup.find_all("div", class_="flex flex-col gap-4 flex-1 px-4 md:pl-4 mb-4 w-full")
         for ad in ads:
-            description = ad.h3.text.strip()
-            company = ad.h4.text.strip()
-            link = site + ad.h3.a["href"]
-            paragraphs = ad.find_all("p", class_="text-sm font-semibold")
-            date = None
-            for paragraph in paragraphs:
-                if "." in paragraph.text:
-                    date = paragraph.text
-            yield company, description, date, link
+            try:
+                description = ad.h3.text.strip()
+                company = ad.h4.text.strip()
+                link = site + ad.h3.a["href"]
+                paragraphs = ad.find_all("p", class_="text-sm font-semibold")
+                date = None
+                for paragraph in paragraphs:
+                    if "." in paragraph.text:
+                        date = paragraph.text
+                yield company, description, date, link
+            except AttributeError:
+                raise SkippedAdError
+            except Exception as exc:
+                raise APPException from exc
